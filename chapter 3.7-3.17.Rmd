@@ -1,0 +1,663 @@
+---
+title: "Chapter 3"
+output: html_notebook
+---
+
+## 3.7 Vectors
+
+In R, the most basic objects available to store data are vectors.
+
+### 3.7.1 Creating vectors
+
+`c`를 이용해서 vector을 만들 수 있다.
+```{r}
+codes <- c(380, 124, 818)
+codes
+```
+
+Charactor vector도 만들 수 있다.
+```{r}
+country <- c("italy", "canada", "egypt")
+```
+
+Single quote를 이용할 수도 있다.
+```{r}
+country <- c('italy', 'canada', 'egypt')
+```
+
+Charactor vector을 만들 때는 quote를 쓰지 않으면 정의되지 않기 때문에 error code가 뜬다.
+```{r}
+country <- c(italy, canada, egypt)
+```
+
+### 3.7.2 Names
+
+Vector에서 entry에 naming을 하는 것이 유용할 때도 있다. For example, when defining a vector of country codes, we can use the names to connect the two:
+```{r}
+codes <- c(italy = 380, canada = 124, egypt = 818)
+codes
+```
+
+The object `codes` continues to be a numeric vector:
+```{r}
+class(codes)
+```
+
+그렇지만 `class`가 아닌 `name`으로 codes를 정의하게 되면,
+```{r}
+names(codes)
+```
+
+Charactor를 정의할 때 혼란스럽다면 quote를 이용해도 된다.
+```{r}
+codes <- c("italy" = 380, "canada" = 124, "egypt" = 818)
+codes
+```
+
+`name`을 이용하여 name을 지정할 수 있다.
+```{r}
+codes <- c(380, 124, 818)
+country <- c("italy","canada","egypt")
+names(codes) <- country
+codes
+```
+
+### 3.7.3 Sequences
+
+Vector을 만들 때 `sequence`를 이용할 수도 있다.
+```{r}
+seq(1,10)
+```
+
+첫번째 argument는 시작을 정의하고, 두번째 argument는 끝을 정의한다. 세번째 argument에는 얼만큼씩 커지는지를 지정할 수 있다.
+
+```{r}
+#여기서는 1에서 시작하여 10까지 나열하고, 그 크기는 2씩 커지게 설정하였다.
+seq(1,10,2)
+```
+
+연속적으로 정수를 나열하고 싶다면 축약해서 나타낼 수 있다.
+
+```{r}
+class(1:10)
+```
+
+만약 정수가 아닌 수를 포함하여 `sequence`를 만든다면 class는 변한다.
+
+```{r}
+class(seq(1,10,0.5))
+```
+
+### 3.7.4 Subsetting
+
+Vector의 특정 element에 접근하기 위해 []을 사용한다. 위에서 정의한 vector `code`에서 2번째 element에 접근하고 싶다면,
+
+```{r}
+codes[2]
+```
+
+Multi-entry vector을 이용하면 하나 이상의 entry에 접근할 수 있다.
+
+```{r}
+codes[c(1,3)]
+```
+
+위에서 언급한 `sequence`를 이용한다면 더 쉽게 접근가능하다.
+
+```{r}
+codes[1:2]
+```
+
+만약에 element가 name을 가지고 있다면 name을 이용해서 entry에 접근할 수도 있다.
+
+```{r}
+codes["canada"]
+codes[c("egypt","italy")]
+```
+
+## 3.8 Coercion
+
+*coercion* is an attempt by R to be flexible with data types. Entry가 예상과 다르게 나올 때, 이미 존재하는 R function이 error가 생기기전에 해석을 시도한다. 이것을 coercion이라고 하는데 오히려 더 큰 혼란을 야기할 수 있다.
+
+```{r}
+#For example,
+x <- c(1, "canada", 3)
+```
+
+원래대로라면 number과 character을 합치려고 했기 때문에 error가 떠야하는데 그렇지 않은 상태.
+```{r}
+x
+class(x)
+```
+
+Data를 강제로 character로 변환했음을 알 수 있다. The fact that not even a warning is issued is an example of how coercion can cause many unnoticed errors in R.
+
+R also offers functions to change from one type to another.
+```{r}
+#numbers를 character로 전환할 수 있다.
+x <- 1:5
+y <- as.character(x)
+y
+```
+We can turn it back with `as.numeric`:
+```{r}
+as.numeric(y)
+```
+
+### 3.8.1 Not availalbes (NA)
+
+`function`이 한 type을 다른 type으로 전환하려고 시도해도 불가능할 경우, warning과 함께 entry에 NA라는 value를 준다.
+```{r}
+x <- c("1", "b", "3")
+as.numeric(x)
+```
+
+R does not have any guesses for what number you want when you type b, so it does not try.
+
+## 3.9 Exercises
+1. Use the function `c` to create a vector with the average high temperatures in January for Beijing, Lagos, Paris, Rio de Janeiro, San Juan and Toronto, which are 35, 88, 42, 84, 81, and 30 degrees Fahrenheit. Call the object `temp`.
+```{r}
+temp <- c("Beijing"=35, "Lagos" = 88, "Paris"=42, "Rio de Janeiro"=84, "San Juan"=81, "Toronto"=30)
+temp
+```
+2. Now create a vector with the city names and call the object city.
+```{r}
+city <- c("Beijing", "Lagos", "Paris", "Rio de Janeiro", "San Juan", "Toronto")
+city
+```
+3. Use the `names` function and the objects defined in the previous exercises to associate the temperature data with its corresponding city.
+```{r}
+names(temp)
+```
+4. Use the `[` and `:` operators to access the temperature of the first three cities on the list.
+```{r}
+temp[1:3]
+```
+
+5. Use the `[` operator to access the temperature of Paris and San Juan.
+```{r}
+temp[c(3,5)]
+```
+
+6. Use the `:` operator to create a sequence of numbers 12, 13, 14, ..., 73
+```{r}
+12:73
+```
+
+7. Create a vector containing all the positive odd numbers smaller than 100.
+```{r}
+c(seq(1, 100, 2))
+```
+
+8. Create a vector of numbers that starts at 6, does not pass 55, and adds numbers in increments of 4/7: 6, 6+4/7, 6+8/7, etc.. How many numbers does the list have? Hint: use `seq` and `length`.
+```{r}
+x <- seq(6, 55, 4/7)
+x
+length(x)
+```
+
+9. What is the class of the following object `a <- seq(1, 10, 0.5)`?
+```{r}
+a <- seq(1, 10, 0.5)
+class(a)
+```
+
+10. What is the class of the following object `a <- seq(1, 10)`?
+```{r}
+a <- seq(1,10)
+class(a)
+```
+
+11. The class of `class(a<-1)` is numeric, not integer. R defaults to numeric and to force an integer, you need to add the letter `L`. Confirm that the class of `1L` is integer.
+```{r}
+class(a<-1)
+class(a<-1L)
+```
+12. Define the following vector: `x <- c("1", "3", "5")` and coerce it to get integers.
+```{r}
+x <- c("1", "3", "5")
+x
+y <- as.integer(x)
+y
+```
+
+## 3.10 Sorting
+
+### 3.10.1 `Sort`
+The function `sort` sorts a vector in increasing order.
+```{r}
+library(dslabs)
+data(murders)
+sort(murders$total)
+```
+
+### 3.10.2 `order`
+The function `order` is closer to what we want. It takes a vector as input and returns the vector of indexes that sorts the input vector.
+```{r}
+x <- c(31, 4, 15, 92, 65)
+sort(x)
+```
+
+The function `order` returns the index that sorts input vector:
+```{r}
+index <- order(x)
+x[index]
+```
+
+This is the same output as that returned by `sort(x)`.
+```{r}
+x
+order(x)
+#order은 2번째인 4가 가장 첫번째임을 나타내고 4번째인 92가 가장 마지막임을 나타낸다.
+```
+
+How does this help us order the states by murders? First, remember that the entries of vectors you access with `$` follow the same order as the rows in the table. For example, these two vectors containing state names and abbreviations respectively are matched by their order:
+```{r}
+murders$state[1:10]
+murders$abb[1:10]
+```
+
+This means we can order the state names by their total murders.
+```{r}
+ind <- order(murders$total) 
+murders$abb[ind] 
+```
+
+California가 가장 murders가 많음을 알 수 있다.
+
+### 3.10.3 `max` and `which.max`
+
+If we are only interested in the entry with the largest value, we can use `max` for the value:
+```{r}
+max(murders$total)
+```
+
+`which.max` for the **index** of the largest value:
+```{r}
+i_max <- which.max(murders$total)
+murders$state[i_max]
+```
+
+For the minimum, we can use `min` and `which.min` in the same way.
+
+### 3.10.4
+
+Although not as frequently used as `order` and `sort`, the function `rank` is also related to order and can be useful.
+```{r}
+x <- c(31, 4, 15, 92, 65)
+rank(x)
+#rank는 31이 3번째이고 4가 첫번째 92가 5번째임을 그대로 나타낸다.
+```
+
+### 3.10.5 Beware of recycling
+
+We saw that vectors are added elementwise. So if the vectors don’t match in length, it is natural to assume that we should get an error.
+```{r}
+x <- c(1,2,3)
+y <- c(10, 20, 30, 40, 50, 60, 70)
+x+y
+```
+
+R has recycled the numbers in x, 따라서 recycling이 적용되어 error가 뜨지 않는다.
+
+## 3.11 Exercise
+```{r}
+library(dslabs)
+data("murders")
+```
+
+1. Use the `$` operator to access the population size data and store it as the object `pop`. Then use the `sort` function to redefine pop so that it is sorted. Finally, use the `[` operator to report the smallest population size.
+```{r}
+pop <- murders$population
+sort(pop)
+min(pop)
+```
+
+2. Now instead of the smallest population size, find the index of the entry with the smallest population size. Hint: use `order` instead of `sort`.
+```{r}
+order(murders$population)
+```
+
+3. We can actually perform the same operation as in the previous exercise using the function `which.min`. Write one line of code that does this.
+```{r}
+which.min(murders$population)
+```
+
+4. Now we know how small the smallest state is and we know which row represents it. Which state is it? Define a variable `states` to be the state names from the `murders` data frame. Report the name of the state with the smallest population.
+```{r}
+i_min <- which.min(murders$population)
+murders$state[i_min]
+```
+
+
+5. You can create a data frame using the `data.frame` function. Here is a quick example:
+```{r}
+temp <- c(35, 88, 42, 84, 81, 30)
+city <- c("Beijing", "Lagos", "Paris", "Rio de Janeiro", "San Juan", "Toronto")
+city_temps <- data.frame(name = city, temperature = temp)
+```
+Use the `rank` function to determine the population rank of each state from smallest population size to biggest. Save these `ranks` in an object called ranks, then create a data frame with the state name and its rank. Call the data frame `my_df`.
+```{r}
+ranks <- rank(murders$population)
+state <- c(murders$state)
+my_df <- data.frame(name=state, population=ranks)
+my_df
+```
+
+
+6. Repeat the previous exercise, but this time order my_df so that the states are ordered from least populous to most populous. Hint: create an object ind that stores the indexes needed to order the population values. Then use the bracket operator [ to re-order each column in the data frame.
+```{r}
+ind <- order(my_df$population)
+my_df$name[ind]
+```
+
+
+7. The `na_example` vector represents a series of counts. You can quickly examine the object using:
+```{r}
+library(dslabs)
+data("na_example")  
+str(na_example)
+```
+However, when we compute the average with the function `mean`, we obtain an `NA`:
+```{r}
+mean(na_example)
+```
+The `is.na` function returns a logical vector that tells us which entries are `NA`. Assign this logical vector to an object called `ind` and determine how many `NA`s does `na_example` have.
+```{r}
+ind <- is.na(na_example)
+na_example[ind]
+```
+총 145개의 NA entries가 존재한다.
+
+8. Now compute the average again, but only for the entries that are not `NA`. Hint: remember the `!` operator.
+```{r}
+mean(na_example[!ind])
+```
+
+## 3.12 Vector arithmetics
+
+California에 murders이 많다고 해서 가장 위험한 지역으로 볼 수 있는가에 대해서는 한 번 더 생각해봐야 한다. 단순히 사람이 더 많아서 murders이 많을 수도 있기 때문이다.
+```{r}
+library(dslabs)
+data("murders")
+murders$state[which.max(murders$population)]
+```
+
+population의 수가 다르기 때문에 단순히 murders 값으로는 비교가 어렵다. 따라서 murders/capita를 구해야 한다.
+
+### 3.12.1 Rescaling a vector
+
+In R, arithmetic operations on vectors occur *element-wise*. For a quick example, suppose we have height in inches:
+```{r}
+inches <- c(69, 62, 66, 70, 70, 73, 67, 73, 67, 70)
+```
+
+1인치는 2.54cm이므로 2.54를 inches object에 곱해준다.
+```{r}
+inches *2.54
+```
+
+다시 inches에서 69를 빼주면
+```{r}
+inches-69
+```
+
+### 3.12.2 Two vectors
+
+murder rates를 알기 위해서는
+```{r}
+murder_rate <- murders$total / murders$population *100000
+```
+그리고 다시 murder_rate로 order해주면
+```{r}
+murders$state[order(murder_rate)]
+```
+
+가장 murder rates가 높은 state는 Vermont임을 알 수 있다.
+
+## 3.13 Exercises
+1. Previously we created this data frame:
+```{r}
+temp <- c(35, 88, 42, 84, 81, 30)
+city <- c("Beijing", "Lagos", "Paris", "Rio de Janeiro", "San Juan", "Toronto")
+city_temps <- data.frame(name = city, temperature = temp)
+```
+Remake the data frame using the code above, but add a line that converts the temperature from Fahrenheit to Celsius.
+```{r}
+temp2 <- (temp-32)*5/9
+city_temps2 <- data.frame(name=city, temperature=temp2)
+city_temps2
+```
+
+2. What is the following sum 1 + 1/2^2 + 1/3^2 + ... + 1/100^2? Hint: thanks to Euler, we know it should be close to pi^2/6
+```{r}
+x <- seq(1,100)
+sum(1/x^2)
+```
+
+3. Compute the per 100,000 murder rate for each state and store it in the object `murder_rate`. Then compute the average murder rate for the US using the function `mean`. What is the average?
+```{r}
+mean(murder_rate)
+```
+
+## 3.14 Indexing
+R provides a powerful and convenient way of indexing vectors. We can, for example, subset a vector based on properties of another vector.
+```{r}
+library(dslabs)
+data("murders")
+```
+
+### 3.14.1 Subsetting with logicals
+We have now calculated the murder rate using:
+```{r}
+murder_rate <- murders$total / murders$population * 100000 
+```
+
+Another powerful feature of R is that we can we can use logicals to index vectors. If we compare a vector to a single number, it actually performs the test for each entry.
+```{r}
+ind <- murder_rate < 0.71
+ind
+```
+
+0.71보다 murder rates가 큰지 작은지 index를 이용해 확인할 수 있다.
+
+Note that we get back a logical vector with TRUE for each entry smaller than or equal to 0.71. To see which states these are, we can leverage the fact that vectors can be indexed with logicals.
+```{r}
+murders$state[ind]
+```
+
+In order to count how many are TRUE, the function `sum` returns the sum of the entries of a vector and logical vectors get coerced to numeric with `TRUE` coded as 1 and `FALSE` as 0.
+```{r}
+sum(ind)
+```
+
+3.14.2 Logical operators
+
+West에 있으면서 safe한 state를 찾고 싶을 때 두 항목 이상에서 `TRUE` function을 사용해야 한다.
+Here we can use the logical operator *and*, which in R is represented with `&`. This operation results in `TRUE` only when both logicals are `TRUE`.
+```{r}
+TRUE & TRUE
+TRUE & FALSE
+FALSE & FALSE
+```
+```{r}
+west <- murders$region == "West"
+safe <- murder_rate <= 1
+```
+
+We can use the `&` to get a vector of logicals that tells us which states satisfy both conditions:
+```{r}
+ind <- safe & west
+murders$state[ind]
+```
+
+### 3.14.3 `which`
+
+The function `which` tells us which entries of a logical vector are TRUE.
+```{r}
+ind <- which(murders$state == "California")
+murder_rate[ind]
+```
+? which를 쓰지 않아도 결과값이 동일
+
+### 3.14.4 `match`
+
+If instead of just one state we want to find out the murder rates for several states, say New York, Florida, and Texas, we can use the function `match`. This function tells us which indexes of a second vector match each of the entries of a first vector:
+```{r}
+ind <- match(c("New York", "Florida", "Texas"), murders$state)
+ind
+```
+
+murder rates를 살펴볼 수 있다.
+```{r}
+murder_rate[ind]
+```
+
+### 3.14.5 `%in%`
+
+If rather than an index we want a logical that tells us whether or not each element of a first vector is in a second, we can use the function `%in%`.
+```{r}
+#Boston, Dakota, Washington은 murders$state에 없기 때문에 false로 결과값이 송출된다.
+c("Boston", "Dakota", "Washington") %in% murders$sstate
+```
+
+**Advanced**: There is a connection between match and %in% through which. To see this, notice that the following two lines produce the same index (although in different order):
+```{r}
+match(c("New York", "Florida", "Texas"), murders$state)
+which(murders$state%in%c("New York", "Florida", "Texas"))
+```
+? which는 하나만 선택해주는 function이 아닌가 
+
+## 3.15 Exercises
+Start by loading the library and data.
+```{r}
+library(dslabs)
+data(murders)
+```
+
+1. Compute the per 100,000 murder rate for each state and store it in an object called `murder_rate`. Then use logical operators to create a logical vector named `low` that tells us which entries of `murder_rate` are lower than 1.
+```{r}
+low <- murder_rate < 1
+```
+
+2. Now use the results from the previous exercise and the function `which` to determine the indices of `murder_rate` associated with values lower than 1.
+```{r}
+in_low <- which(low)
+```
+
+3. Use the results from the previous exercise to report the names of the states with murder rates lower than 1.
+```{r}
+murders$state[in_low]
+```
+
+4. Now extend the code from exercise 2 and 3 to report the states in the Northeast with murder rates lower than 1. Hint: use the previously defined logical vector `low` and the logical operator `&`.
+```{r}
+northeast <- murders$region == "Northeast"
+murders$state[in_low & northeast]
+```
+
+5. In a previous exercise we computed the murder rate for each state and the average of these numbers. How many states are below the average?
+```{r}
+mean(murder_rate)
+belowavg <- murder_rate < 2.779125
+murders$state[belowavg]
+sum(belowavg)
+```
+총 27개의 states가 average보다 murder rates가 낮다.
+
+6. Use the match function to identify the states with abbreviations AK, MI, and IA. Hint: start by defining an index of the entries of `murders$abb` that match the three abbreviations, then use the `[` operator to extract the states.
+```{r}
+abb <- c("AK", "MI", "IA")
+names <- match(abb, murders$abb)
+murders$state[names]
+```
+
+7. Use the `%in%` operator to create a logical vector that answers the question: which of the following are actual abbreviations: MA, ME, MI, MO, MU ?
+```{r}
+c("MA","ME","MI","MO","MU") %in% murders$abb
+```
+MU를 제외하고 모두 존재하는 abbreviation이다.
+
+8. Extend the code you used in exercise 7 to report the one entry that is **not** an actual abbreviation. Hint: use the `!` operator, which turns `FALSE` into `TRUE` and vice versa, then which to obtain an index.
+```{r}
+abb <- c("MA","ME","MI","MO","MU") %in% murders$abb
+which(!abb == TRUE)
+```
+
+## 3.16 Basic plots
+
+### 3.16.1 `plot`
+
+The `plot` function can be used to make scatterplots.
+```{r}
+x <- murders$population / 10^6
+y <- murders$total
+
+plot(x, y)
+```
+
+For a quick plot that avoids accessing variables twice, we can use the `with` function:
+```{r}
+with(murders, plot(population, total))
+```
+The function `with` lets us use the `murders` column names in the `plot` function.
+
+### 3.16.2 `hist`
+```{r}
+x <- with(murders, total / population * 100000)
+hist(x)
+```
+
+murders수가 가장 많은 state를 알기 위해 `which.max`를 이용한다.
+```{r}
+murders$state[which.max(x)]
+```
+
+### 3.16.3 `boxplot`
+
+Boxplots will also be described in the Data Visualization part of the book. They provide a more terse summary than histograms, but they are easier to stack with other boxplots.
+```{r}
+murders$rate <- with(murders, total / population * 100000)
+boxplot(rate~region, data = murders)
+```
+
+### 3.16.4 `image`
+
+The image function displays the values in a matrix using color.
+```{r}
+x <- matrix(1:120, 12, 10)
+image(x)
+```
+
+? matrix안 숫자의 의미 
+
+## 3.17 Exercises
+1. We made a plot of total murders versus population and noted a strong relationship. Not surprisingly, states with larger populations had more murders.
+```{r}
+library(dslabs)
+data(murders)
+population_in_millions <- murders$population/10^6
+total_gun_murders <- murders$total
+plot(population_in_millions, total_gun_murders)
+```
+
+Keep in mind that many states have populations below 5 million and are bunched up. We may gain further insights from making this plot in the log scale. Transform the variables using the `log10` transformation and then plot them.
+```{r}
+log_population <- log(population_in_millions, 10)
+log_total <- log(total_gun_murders, 10)
+plot(log_population, log_total)
+```
+
+2. Create a histogram of the state populations.
+```{r}
+pop <- with(murders, murders$population)
+hist(pop)
+```
+
+? murders$population으로 지정하지 않고 바로 population을 써도 결과가 나오는 이유 
+
+3. Generate boxplots of the state populations by region.
+```{r}
+boxplot(population~region, data=murders)
+```
+
