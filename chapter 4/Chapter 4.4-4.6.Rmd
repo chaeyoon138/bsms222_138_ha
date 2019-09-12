@@ -1,0 +1,185 @@
+---
+title: "Chapter 4"
+output: html_notebook
+---
+
+## 4.4 For-loops
+
+1+2+...+n=n(n+1)/2 이라는 식이 확실하지 않다면 어떻게 확인을 할까?
+```{r}
+compute_s_n <- function(n){
+  x <- 1:n
+  sum(x)
+}
+```
+
+*Sn*을 계산할 때 만약 n값을 1부터 25까지 지정한다면, 25줄을 다 써야할까? `For-loops` let us define the range that our variable takes, then change the value and evaluate expression as you loop.
+```{r}
+for(i in 1:5){
+  print(i)
+}
+```
+
+Here is the for-loop we would write for our *Sn* example:
+```{r}
+m <- 25
+s_n <- vector(length=m) # create an empty vector
+for(n in 1:m){
+  s_n[n] <- compute_s_n(n)
+}
+```
+
+이를 plot을 이용해 확인할 수 있다.
+```{r}
+n <- 1:m
+plot(n, s_n)
+```
+
+```{r}
+head(data.frame(s_n = s_n, formula = n*(n+1)/2))
+```
+
+두 결과를 겹쳐서 보고 싶으면 `lines`를 이용해서 그릴 수 있다.
+```{r}
+plot(n, s_n)
+lines(n, n*(n+1)/2)
+```
+
+## 4.5 Vectorization and functionals
+
+```{r}
+x <- 1:10
+sqrt(x)
+
+y <- 1:10
+x*y
+```
+
+`Seqeunce`로 지정을 했을 때 각 수를 하나의 element로 보는 것이 아닌 sequence를 scalar로 보기 때문에 sequence의 첫번재 수만 인식하여 `compute_s_n`에 사용한다.
+```{r}
+n <- 1:25
+compute_s_n(n)
+```
+
+The function `sapply` permits us to perform element-wise operations on any function.
+```{r}
+x <- 1:10
+sapply(x, sqrt)
+```
+결과적으로 `sapply`를 이용하면 지정한 값을 element-wise로 인식한다. 따라서 앞서 사용했던 compute_s_n에 `sapply`를 이용하면 기대하던 값을 얻을 수 있다.
+```{r}
+n <- 1:25
+s_n <- sapply(n, compute_s_n)
+plot(n, s_n)
+```
+
+## 4.6 Exercises
+
+1. What will this conditional expression return?
+```{r}
+x <- c(1,2,-3,4)
+
+if(all(x>0)){
+  print("All Postives")
+} else{
+  print("Not all positives")
+}
+```
+
+2. Which of the following expressions is always `FALSE` when at least one entry of a logical vector `x` is TRUE?
+```{r}
+x <- c(TRUE, TRUE, FALSE)
+all(x)
+any(x)
+any(!x)
+all(!x)
+```
+A. `all(x)`
+B. `any(x)`
+C. `any(!x)`
+**D. `all(!x)`**
+
+3. The function `nchar` tells you how many characters long a character vector is.
+Write a line of code that assigns to the object `new_names` the state abbreviation when the state name is longer than 8 characters.
+```{r}
+state_8 <- nchar(murders$state) > 8
+new_names <- murders$abb[state_8]
+new_names
+```
+
+4. Create a function `sum_n` that for any given value, say *n*, computes the sum of the integers from 1 to n (inclusive). Use the function to determine the sum of integers from 1 to 5,000.
+```{r}
+sum_n <- function(n){
+  x <- 1:n
+  sum(x)
+}
+sum_n(5000)
+```
+
+5. Create a function `altman_plot` that takes two arguments, `x` and `y`, and plots the difference against the sum.
+```{r}
+
+```
+
+6. After running the code below, what is the value of `x`? 
+```{r}
+x <- 3
+my_func <- function(y){
+  x <- 5
+  y+5
+}
+
+print(x)
+```
+x의 value는 3인 것을 알 수 있다. 
+
+7. Write a function `compute_s_n` that for any given n computes the sum Sn=1^2+2^2+3^2+...+n^2. Report the value of the sum when n=10
+```{r}
+compute_s_n <- function(n){
+  x <- 1:n
+  sum(x^2)
+}
+compute_s_n(10)
+```
+
+8. Define an empty numerical vector `s_n` of size 25 using `s_n <- vector("numeric", 25)` and store in the results of S1, S2, ... S25 using a for-loop.
+```{r}
+m <- 25
+s_n <- vector("numeric", 25)
+for(n in 1:m){
+  s_n[n] <- compute_s_n(n)
+}
+
+s_n
+```
+
+
+9. Repeat exercise 8, but this time use `sapply`.
+```{r}
+n <- 1:25
+s_n <- sapply(n, compute_s_n)
+
+s_n
+```
+
+10. Repeat exercise 8, but this time use `map_dbl`
+```{r}
+n <- 1:25
+s_n <- map_dbl(n, compute_s_n)
+
+s_n
+```
+
+11. Plot *Sn* versus *n*. Use points defined by n = 1,...,25.
+```{r}
+n <- 1:25
+plot(n, s_n)
+```
+
+12. Confirm that the formula for this sum is Sn=n(n+1)(2n+1)/6
+```{r}
+s_n = s_n
+formula = n*(n+1)*(2n+1)/6
+s_n == formula
+```
+?error 뜨는 이유
