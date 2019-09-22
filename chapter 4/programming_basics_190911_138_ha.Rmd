@@ -1,0 +1,153 @@
+---
+title: "Chapter 4"
+output: html_notebook
+---
+# Programing basics
+
+## 4.1 Conditional expressions
+
+Conditional expressions은 flow control에 주로 사용된다. 가장 일반적인 conditional expressions은 if-else이다.
+```{r}
+#a가 0이 아니면 1/a를 print하고 그렇지 않다면 "No reciprocal for 0"을 print하라.
+a <- 0
+
+if(a!=0){
+  print(1/a)
+} else{
+  print("No reciprocal for 0.")
+}
+```
+
+Let’s look at one more example using the US murders data frame:
+```{r}
+library(dslabs)
+data(murders)
+murder_rate <- murders$total / murders$population*100000
+```
+
+```{r}
+#murder_rate가 0.5보다 작은 state가 있다면 minimum값을 가지는 state를 print하고, 없다면 "No state has murder rate that low"를 print 하라.
+
+ind <- which.min(murder_rate)
+
+if(murder_rate[ind] < 0.5){
+  print(murders$state[ind]) 
+} else{
+  print("No state has murder rate that low")
+}
+```
+
+murder rates를 0.25보다 작게 설정하면 결과는 달라진다.
+```{r}
+if(murder_rate[ind] < 0.25){
+  print(murders$state[ind]) 
+} else{
+  print("No state has a murder rate that low.")
+}
+```
+
+이와 관련하여 `ifelse`를 사용할 수도 있다. This function takes three arguments: a logical and two possible answers. If the logical is `TRUE`, the value in the **second** argument is returned and if `FALSE`, the value in the **third** argument is returned. 
+```{r}
+a <- 0
+ifelse(a>0, 1/a, NA)
+```
+
+The function is particularly useful because it works on vectors.
+```{r}
+a <- c(0, 1, 2, -4, -5)
+result <- ifelse(a>0, 1/a, NA)
+result
+```
+
+Here is an example of how this function can be readily used to replace all the missing values in a vector with zeros:
+```{r}
+data(na_example)
+no_nas <- ifelse(is.na(na_example), 0, na_example) 
+sum(is.na(no_nas))
+```
+
+또다른 function으로는 `any`와 `all`이 있다. `any` takes a vector of logicals and returns `TRUE` if any of the entries is `TRUE`. `all` takes a vector of logicals and returns `TRUE` if all of the entries are `TRUE`. 
+```{r}
+z <- c(TRUE, TRUE, FALSE)
+any(z)
+all(z)
+```
+
+## 4.2 Defining functions
+
+특정 function을 반복적으로 사용할 때, 이를 직접 지정하여 사용할 수 있다. 예를들어 vector `x`의 average를 알고자 할 때, `sum`과 `length`를 이용하여 sum(x)/length(x) 값을 구한다. 결과적으로 average를 구하는 기능은 보편적으로 많이 쓰기 때문에 R에서 `mean`이라는 function으로 따로 지정하여 두었지만 지정된 function이 없을 경우에는 따로 정의내려 사용하는 것이 편하다.
+```{r}
+avg <- function(x){
+  s <- sum(x)
+  n <- length(x)
+  s/n
+}
+```
+
+```{r}
+#average와 mean은 결과적으로 같은 의미
+x <- 1:100
+identical(mean(x), avg(x))
+```
+
+Notice that variables defined inside a function are not saved in the workspace. So while we use `s` and `n` when we call `avg`, the values are created and changed only during the call.
+```{r}
+s <- 3
+avg(1:10)
+s
+```
+이미 `s`를 3으로 지정했는데 어떻게 `avg` function은 그대로 유지될 수 있는지?
+
+The general form of a function definition looks like this:
+```{r}
+#General form of a function definition
+
+my_function <- function(VARIABLE_NAME){
+  perform operations on VARIABLE_NAME and calculate VALUE
+  VALUE
+}
+```
+
+The functions you define can have multiple arguments as well as default values. For example, we can define a function that computes either the arithmetic or geometric average.
+```{r}
+avg <- function(x, arithmetic = TRUE){
+  n <- length(x)
+  ifelse(arithmetic, sum(x)/n, prod(x)^(1/n))
+}
+```
+
+## 4.3 Namespaces
+
+We will likely need to load several add-on packages for some of your analysis. It is likely that two packages use the same name for two different functions. And often these functions do completely different things. 
+```{r}
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+    
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+```
+```{r}
+install.packages('stats')
+install.packages('base')
+library(dplyr)
+```
+
+R will follow a certain order when searching for a function in these *namespaces*.
+```{r}
+search()
+```
+
+만약 **stats** `filter`을 사용하고 싶다면,
+```{r}
+stats::filter
+```
+
+만약 **dplyr** `filter`을 사용하고 싶다면,
+```{r}
+dplyr::filter
+```
+
+만약 package 전체를 로딩하지 않고 function을 사용하고 싶다면 `::`을 이용할 수 있다.
