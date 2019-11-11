@@ -1,0 +1,218 @@
+---
+title: "**Chapter 14 Random variables**"
+output: html_notebook
+---
+
+In this chapter, we introduce random variables and their properties starting with their application to games of chance. We then describe some of the events surrounding the financial crisis of 2007-200846 using probability theory.
+
+## **14.1 Random variables**
+
+Random variables are numeric outcomes resulting from random processes. We can easily generate random variables using some of the simple examples we have shown. For example, define `X` to be 1 if a bead is blue and red otherwise:
+
+```{r}
+beads <- rep( c("red", "blue"), times = c(2,3))
+X <- ifelse(sample(beads, 1) == "blue", 1, 0)
+```
+
+Here `X` is a random variable: every time we select a new bead the outcome changes randomly. See below:
+```{r}
+ifelse(sample(beads, 1) == "blue", 1, 0)
+ifelse(sample(beads, 1) == "blue", 1, 0)
+ifelse(sample(beads, 1) == "blue", 1, 0)
+```
+
+## **14.2 Sampling models**
+
+Many data generation procedures, those that produce the data we study, can be modeled quite well as draws from an urn.
+
+In epidemiological studies, we often assume that the subjects in our study are a random sample from the population of interest. The data related to a specific outcome can be modeled as a random sample from an urn containing the outcome for the entire population of interest.
+
+We are going to define a random variable $S$ that will represent the casino’s total winnings. Let’s start by constructing the urn. A roulette wheel has 18 red pockets, 18 black pockets and 2 green ones. So playing a color in one game of roulette is equivalent to drawing from this urn:
+
+```{r}
+color <- rep(c("Black", "Red", "Green"), c(18, 18, 2))
+```
+
+The 1,000 outcomes from 1,000 people playing are independent draws from this urn. If red comes up, the gambler wins and the casino loses a dollar, so we draw a -$1. Otherwise, the casino wins a dollar and we draw a $1. To construct our random variable $S$, we can use this code:
+
+```{r}
+n <- 1000
+X <- sample(ifelse(color == "Red", -1, 1),  n, replace = TRUE)
+X[1:10]
+```
+
+Because we know the proportions of 1s and -1s, we can generate the draws with one line of code, without defining `color`:
+
+```{r}
+X <- sample(c(-1,1), n, replace = TRUE, prob=c(9/19, 10/19))
+```
+
+
+We call this a **sampling model** since we are modeling the random behavior of roulette with the sampling of draws from an urn. The total winnings $S$ is simply the sum of these 1,000 independent draws:
+
+```{r}
+X <- sample(c(-1,1), n, replace = TRUE, prob=c(9/19, 10/19))
+S <- sum(X)
+S
+```
+
+## **14.3 The probability distribution of a random variable**
+
+If you run the code above, you see that $S$ changes every time. This is, of course, because $S$ is a random variable. The probability distribution of a random variable tells us the probability of the observed value falling at any given interval.
+
+If we can define a cumulative distribution function
+$$ F(a)=Pr(S≤a) $$
+then we will be able to answer any question related to the probability of events defined by our random variable $S$, including the event $S < 0$. We call this $F$ the random variable's *distribution function*.
+
+We can estimate the distribution function for the random variable $S$ by using a Monte Carlo simulation to generate many realizations of the random variable.
+
+```{r}
+n <- 1000
+B <- 10000
+roulette_winnings <- function(n){
+  X <- sample(c(-1,1), n, replace = TRUE, prob=c(9/19, 10/19))
+  sum(X)
+}
+S <- replicate(B, roulette_winnings(n))
+```
+
+Now we can ask the following: in our simulations, how often did we get sums less than or equal to `a`?
+
+```{r}
+mean(S <= a)
+```
+
+This will be a very good approximation of $F(a)$ and we can easily answer the casino’s question: how likely is it that we will lose money?
+
+```{r}
+mean(S<0)
+```
+
+We can visualize the distribution of $S$ by creating a histogram showing the probability $F(b)-F(a)$ for several intervals $(a,b]$:
+```{r}
+hist(S)
+```
+
+If the distribution is normal, then all we need to define the distribution is the average and the standard deviation. Because we have the original values from which the distribution is created, we can easily compute these with `mean(S)` and `sd(S)`.
+
+This average and this standard deviation have special names. They are referred to as the **expected value** and **standard error** of the random variable $S$.
+
+Statistical theory provides a way to derive the distribution of random variables defined as independent random draws from an urn.
+
+We can use the function `dbinom` and `pbinom` to compute the probabilities exactly.
+$$ Pr(S<0)=Pr((S+n)/2<(0+n)/2) $$
+and we can use the `pbinom` to compute $Pr(S≤0)$
+
+```{r}
+n <- 1000
+pbinom(n/2, size = n, prob = 10/19)
+```
+
+Because this is a discrete probability function, to get $Pr(S<0)$ rather than $Pr(S≤0)$, we write:
+```{r}
+pbinom(n/2-1, size = n, prob = 10/19)
+```
+
+## **14.4 Distributions versus probability distributions**
+
+Before we continue, let’s make an important distinction and connection between the distribution of a list of numbers and a probability distribution.
+
+```{r}
+m <- sum(x)/length(x)
+s <- sqrt(sum((x - m)^2) / length(x))
+```
+
+A random variable $X$ has a distribution function. To define this, we do not need a list of numbers. It is a theoretical concept. In this case, we define the distribution as the $F(a)$ that answers the question: what is the probability that $X$ is less than or equal to a?
+
+## **14.5 Notation for random variables**
+
+In statistical textbooks, upper case letters are used to denote random variables and we follow this convention here. Lower case letters are used for observed values. You will see some notation that includes both.
+
+We can talk about what we expect it to be, what values are probable, but not what it is. But once we have data, we do see a realization of $X$.
+
+## **14.6 The expected value and standard error**
+
+We have described sampling models for draws. We will now go over the mathematical theory that lets us approximate the probability distributions for the sum of draws.
+
+The first important concept to learn is the expected value. In statistics books, it is common to use letter $E$ like this:
+$$ E[X] $$
+A random variable will vary around its expected value in a way that if you take the average of many, many draws, the average of the draws will approximate the expected value, getting closer and closer the more draws you take.
+
+In the urn used to model betting on red in roulette, we have 20 one dollars and 18 negative one dollars. The expected value is thus:
+$$ E[X]=(20+-18)/38 $$
+A Monte Carlo simulation confirms this:
+```{r}
+B <- 10^6
+x <- sample(c(-1,1), B, replace = TRUE, prob=c(9/19, 10/19))
+mean(x)
+```
+
+In general, if the urn has tow possible outcomes, say $a$ and $b$ with proportions $p$ and $1-p$ respectively, the average is:
+$$ E[X]=ap+b(1-p) $$
+
+To see this, notice that if there are $n$ beads in the urn, then we have $np$ $as$ and $n(1-p)$ $bs$ and because the average is the sum, $n×a×p+n×b×(1-p)$, divided by the total $n$, we get that the average is $ap+b(1-p)$.
+
+The first useful fact is that the *expected value of the sum of the draws* is:
+
+$$ numbers\ of\ draws × average\ of\ the\ numbers\ in\ the\ urn $$
+
+Statistical theory once again answers this question. The *standard error* (SE) gives us an idea of the size of the variation around the expected value. In statistics books, it’s common to use:
+$$ SE[X] $$
+to denote the standard error of a random variable.
+
+**If our draws are independent**, then the standard error of the sum is given by the equation:
+$$ \sqrt{numbers\ of\ draws} × standard\ deviation\ of\ the\ numbers\ in\ the\ urn $$
+Using the definition of standard deviation, we can derive that if an urn contains two values $a$ and $b$ with proportions $p$ and $(1-p)$, respectively, the standard deviation is:
+$$ |b-a|\sqrt{p(1-p)} $$
+So in our roulette example, the standard deviation of the values inside the urn is:
+
+$|1-(-1)|\sqrt(10/19×9/19)$ or:
+```{r}
+2 * sqrt(90)/19
+```
+
+The standard error tells us the typical difference between a random variable and its expectation. Since one draw is obviously the sum of just one draw, we can use the formula above to calculate that the random variable defined by one draw has an expected value of 0.05 and a standard error of about 1.
+
+Using the formula above, the sum of 1,000 people playing has standard error of about $32:
+
+```{r}
+n <- 1000
+sqrt(n) * 2 * sqrt(90)/19
+```
+
+### 14.6.1 Population SD versus the sample SD
+
+The standard deviation of a list `x` (below we use heights as an example) is defined as the square root of the average of the squared differences:
+
+```{r}
+library(dslabs)
+x <- heights$height
+m <- mean(x)
+s <- sqrt(mean((x-m)^2))
+```
+
+Using mathematical notation we write:
+$$
+\mu = \frac{1}{n} \sum_{i=1}^n x_i
+$$
+$$
+\sigma = \sqrt{ \frac{1}{n} \sum_{i=1}^n (x_i -\mu)^2}
+$$
+
+However, be aware that the `sd` function returns a slightly different result:
+```{r}
+identical(s, sd(x))
+s-sd(x)
+```
+
+This is because the `sd` function R does not return the `sd` of the list, but rather uses a formula that estimates standard deviations of a population from a random sample sample $X_1, ..., X_n$ which, for reasons not discussed here, divide the sum of squares by the $N-1$.
+
+$$
+\bar X = \frac{1}{N} \sum_{i=1}^N X_i,\ \ s=\sqrt{ \frac{1}{N-1} \sum_{i=1}^N (X_i -\bar X)^2}
+$$
+
+For all the theory discussed here, you need to compute the actual standard deviation as defined:
+```{r}
+sqrt(mean((x-m)^2))
+```
+
